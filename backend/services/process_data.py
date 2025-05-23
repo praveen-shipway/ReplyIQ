@@ -22,8 +22,8 @@ intent_keywords = {
 # Define required entities for each intent
 required_entities_for_intent = {
     "wismo": ["ORDER_ID_OR_TRACKING_NUMBER"],
-    "cancel": ["ORDER_ID"],
-    "reschedule": ["ORDER_ID"],
+    "cancel": ["ORDER_ID", "TRACKING_NUMBER"],
+    "reschedule": ["ORDER_ID","TRACKING_NUMBER"],
     "general": [],
     "faq": [],
 }
@@ -39,37 +39,40 @@ excluded_words = set([
 # --- Specific ID Patterns ---
 id_patterns = {
     "ORDER_ID": [
-        # New Pattern: Catches any alphanumeric string directly following "order", "order is", "order ID is".
-        # This is a broad catch for unformatted or unusual IDs when context is present.
-        # Examples: "my order EFNFNKN", "order is 123ABC", "order ID is XYZ"
-        r'(?:order|order\s*is|order\s*id\s*is)\s*([A-Za-z0-9-]{4,30})\b',
+      # New Pattern: Catches any alphanumeric string directly following "order", "order is", "order ID is".
+      # MODIFIED: Added '_' to the character set [A-Za-z0-9_-]
+      r'(?:order|order\s*is|order\s*id\s*is)\s*([A-Za-z0-9_-]{4,30})\b',
 
-        # Pattern 1: Explicitly stated order ID (e.g., "order id: ABC123", "purchase #XYZ")
-        # Captures alphanumeric strings (4-20 chars) following common order ID phrases like 'id', '#'.
-        r'(?:order\s*id|order\s*#|purchase\s*id)\s*[:=\s]?\s*([A-Za-z0-9]{4,20})\b',
+      # Pattern 1: Explicitly stated order ID (e.g., "order id: ABC123", "purchase #XYZ")
+      # CONSIDER: If your explicit IDs can have underscores, add '_' here too: [A-Za-z0-9_]{4,20}
+      r'(?:order\s*id|order\s*#|purchase\s*id)\s*[:=\s]?\s*([A-Za-z0-9]{4,20})\b', # Keep as is or modify based on your ID format
 
-        # Pattern 2: Purely numeric order ID (e.g., "my order 12345")
-        # Catches standalone numbers that are 5 to 15 digits long.
-        r'\b(\d{5,15})\b',
+      # Pattern 2: Purely numeric order ID (e.g., "my order 12345")
+      # No change needed, as underscores are not numeric.
+      r'\b(\d{5,15})\b',
 
-        # Pattern 3: Structured alphanumeric order ID (e.g., "AB12345C", "INV98765")
-        # Starts with 2-5 uppercase letters, followed by 4-15 digits, optionally ending with 0-5 uppercase letters.
-        r'\b([A-Z]{2,5}\d{4,15}[A-Z]{0,5})\b',
+      # Pattern 3: Structured alphanumeric order ID (e.g., "AB12345C", "INV98765")
+      # No change needed, as underscores are not typically in this type of structured ID.
+      r'\b([A-Z]{2,5}\d{4,15}[A-Z]{0,5})\b',
 
-        # Pattern 4: General alphanumeric order ID (e.g., "XYZABC01", "EFNFNKN")
-        # Catches any combination of 6 to 15 uppercase letters or digits.
-        r'\b([A-Z0-9]{6,15})\b',
+      # Pattern 4: General alphanumeric order ID (e.g., "XYZABC01", "EFNFNKN")
+      # CONSIDER: If your general alphanumeric IDs can have underscores, add '_' here: [A-Z0-9_]{6,15}
+      r'\b([A-Z0-9]{6,15})\b', # Keep as is or modify based on your ID format
     ],
     "TRACKING_NUMBER": [
-        # NEW / MODIFIED PATTERN: Catches any alphanumeric string after common tracking or AWB phrases.
-        # This is a broad, high-priority pattern for explicit tracking/AWB context.
-        # Examples: "track my 123XYZ", "tracking number ABC-456", "awb is BLAH789", "awb number DED456"
-        r'(?:track|tracking\s*number|awb\s*number|awb\s*is|awb)\s*([A-Za-z0-9-]{6,35})\b',
+        # HIGH PRIORITY PATTERN: Catches alphanumeric strings (with hyphens/underscores) following
+        # various tracking and AWB keywords/phrases.
+        # This pattern is made more robust by explicitly defining the full keyword phrases in non-capturing groups.
+        # Includes variations like "trackingnumber" (one word) and common typos like "traking".
+        # Also handles "awb number" as a full phrase, and "awb" or "track" as standalone keywords.
+        # Reduced min length to 3 to catch shorter IDs when explicitly preceded by a keyword.
+        r'(?:track(?:ing)?\s*(?:number)?|traking|awb(?:\s*number|\s*is)?)\s*([A-Za-z0-9_-]{3,35})\b',
 
-        # Explicit phrases for tracking IDs (e.g., "tracking ID: 123ABC", "track num XYZ-987")
-        r'(?:tracking\s*id|tracking\s*number|tracking\s*#|track\s*num)\s*[:=\s]?\s*([A-Za-z0-9-]{10,35})\b', 
+        # SECONDARY PATTERN: Explicit phrases for tracking IDs that use "id" or "#" as separators.
+        # This handles cases like "tracking ID: 123ABC" or "tracking #XYZ-987".
+        r'(?:tracking\s*id|tracking\s*#|track\s*num)\s*[:=\s]?\s*([A-Za-z0-9_-]{10,35})\b', 
         
-        # Common carrier-specific tracking patterns (UPS, USPS, etc.)
+        # Carrier-specific tracking patterns. These are often very specific formats.
         r'\b(1Z[A-Z0-9]{16})\b',    # Example: UPS tracking number
         r'\b(94\d{20,25})\b',      # Example: USPS tracking number (long numeric)
         r'\b([A-Z]{2}\d{9}[A-Z]{2})\b' # Example: Royal Mail/PostNL international format
@@ -120,19 +123,23 @@ def extract_info(text):
     # Prioritize IDs mentioned with clear context ("tracking ID is", "order ID is")
     
     # Try to extract Tracking ID (highest priority for explicit mention)
+    
     for pattern in id_patterns.get("TRACKING_NUMBER", []):
         match = re.search(pattern, lower_text)
         if match:
-            extracted_id = match.group(1).upper().replace('-', '').strip()
-            if len(extracted_id) > 5 and extracted_id.lower() not in excluded_words:
+            # Ensure proper cleaning for underscores and hyphens.
+            extracted_id = match.group(1).replace('-', '').replace('_', '').strip()
+            # The min length check is now mostly handled by the regex itself (e.g., {3,35}).
+            # We just need to check against the excluded words.
+            if extracted_id.lower() not in excluded_words:
                 entities["TRACKING_NUMBER"] = extracted_id
-                break # Break from patterns for TRACKING_NUMBER if found, move to next ID type (ORDER_ID)
+                break # Break from patterns for TRACKING_NUMBER if found
 
     # Try to extract Order ID (high priority for explicit mention)
     for pattern in id_patterns.get("ORDER_ID", []):
         match = re.search(pattern, lower_text)
         if match:
-            extracted_id = match.group(1).upper().replace('-', '').strip()
+            extracted_id = match.group(1).replace('-', '').strip()
             if len(extracted_id) >= 4 and extracted_id.lower() not in excluded_words:
                 # Crucial: Only add if not already extracted as a TRACKING_NUMBER (if your IDs can overlap)
                 if "TRACKING_NUMBER" in entities and entities["TRACKING_NUMBER"] == extracted_id:
@@ -221,42 +228,18 @@ def extract_info(text):
     return {"intent": detected_intent, "entities": entities, "missing": missing_entities}
 
 
-# # Example test cases
+# Example test cases
 # messages = [
-#     "User Message: Cancel my order efnfnkn.",                 # ORDER_ID: 45321
-#     "User Message: Where is my package? My tracking ID is 9412345678901234567890", # Should be TRACKING_ID only
-#     "User Message: Track my shipment 789XYZ.",
-#     "User Message: I need to reschedule my order.",
-#     "User Message: Tell me about your company.",
-#     "User Message: What is the refund policy?",
-#     "User Message: jdjskdjskdsk",
-#     "User Message: my order ID is ABCDEFG123",
-#     "User Message: I want to know the status of order #XYZ-9876",
-#     "User Message: Can you check order 1234567890",
-#     "User Message: Update my order 12345",
-#     "User Message: Can you find the status of my order id = 12345",
-#     "User Message: Where is my order with tracking number TRK123456789",
-#     "User Message: I placed an order yesterday",
-#     "User Message: Is my item 9876 in stock?",
-#     "User Message: The invoice number is INV54321",
-#     "User Message: What is the status of order ABCDEFGHIJKLMN",
-#     "User Message: My carrier ID is FEDEX",
-#     "User Message: How do I track using carrier code UPS?",
-#     "User Message: My tracking number is 1Z9999W99999999999 and order is XYZ123",
-#     "User Message: Where is my package? My tracking ID is 9412345678901234567890", # Long numeric tracking ID
-#     "User Message: Can you help me with carrier id DHL?",
-#     "User Message: Status of order 8745",
-#     "User Message: My tracking is 9876543210",
-#     "User Message: My order was placed on 2024-05-23", # Explicit YYYY-MM-DD date
-#     "User Message: I placed it on 05/23/2024",       # Explicit MM/DD/YYYY date
-#     "User Message: What is the status of order 20250523", # Ambiguous: should be date if not explicit ID
-#     "User Message: My order ID is 20250523", # Explicitly stated as Order ID (Context overrides date)
-#     "User Message: My delivery date is 23-05-2025", # DD-MM-YYYY date
-#     "User Message: I ordered on May 23, 2025", # Textual date
-#     "User Message: Order is from 20240101", # YYYYMMDD date
-#     "User Message: This is a random string 123456789012345678901234567890", # Long number that's not an ID or date
-#     "User Message: check order 2024-05-23", # Both order and date, prioritize order or context
-#     "User Message: track 98765432109876543210", # Long numeric tracking ID (no explicit 'tracking ID')
+#     "User Message: Cancel my track FEWHKWFIU.",             
+#     "User Message: Cancel my trackingnumber efnfnkn.",  
+#         "User Message: Cancel my traking ejfjkfnfnkn.", 
+#         "User Message: Cancel my awb kdf.",  
+ 
+
+#     "User Message: Cancel my aws n efn63427_fnkn.",                 # ORDER_ID: 45321
+
+#                    # ORDER_ID: 45321
+# # ORDER_ID: 45321
 # ]
 
 # print("\n--- Extracted Intent & Differentiated IDs & Dates ---")
