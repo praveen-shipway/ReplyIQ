@@ -1,0 +1,256 @@
+{
+  "Order Cancelation": [
+    {
+      "user_input": "I need to cancel order 45321",
+      "intent": "Order Cancelation",
+      "entities": {
+        "order_id": "45321"
+      },
+      "system_response": "Your order #45321 has been successfully canceled. A refund will be processed within 3\u20135 business days.",
+      "action": "Cancel Order"
+    },
+    {
+      "user_input": "Cancel my order number 99999",
+      "intent": "Order Cancelation",
+      "entities": {
+        "order_id": "99999"
+      },
+      "system_response": "Order #99999 has been canceled.",
+      "action": "Cancel Order"
+    },
+    {
+      "user_input": "Please cancel 22222",
+      "intent": "Order Cancelation",
+      "entities": {
+        "order_id": "22222"
+      },
+      "system_response": "Order #22222 is canceled. Check your email for confirmation.",
+      "action": "Cancel Order"
+    },
+    {
+      "user_input": "I changed my mind, cancel order #33333",
+      "intent": "Order Cancelation",
+      "entities": {
+        "order_id": "33333"
+      },
+      "system_response": "Order #33333 has been canceled. A confirmation email has been sent to you.",
+      "action": "Cancel Order"
+    }
+  ],
+  "WISMO (Where Is My Order?)": [
+    {
+      "user_input": "Where is my order #98765?",
+      "intent": "WISMO",
+      "entities": {
+        "order_id": "98765"
+      },
+      "system_response": "Your order #98765 is currently in transit and expected to be delivered on May 25th.",
+      "action": "Fetch Order Status"
+    },
+    {
+      "user_input": "When will my order #55555 arrive?",
+      "intent": "WISMO",
+      "entities": {
+        "order_id": "55555"
+      },
+      "system_response": "Order #55555 is scheduled for delivery tomorrow.",
+      "action": "Fetch Order Status"
+    },
+    {
+      "user_input": "I want to know where my stuff is",
+      "intent": "WISMO",
+      "entities": {},
+      "system_response": "Can you please provide your order number?",
+      "action": "Request Order ID"
+    },
+    {
+      "user_input": "Order 32123 hasn\u2019t arrived yet",
+      "intent": "WISMO",
+      "entities": {
+        "order_id": "32123"
+      },
+      "system_response": "Order #32123 is delayed due to weather. It should arrive in 2 days.",
+      "action": "Fetch Order Status"
+    },
+    {
+      "user_input": "When will I get my package?",
+      "intent": "WISMO",
+      "entities": {},
+      "system_response": "Please provide your order number so we can check the status.",
+      "action": "Request Order ID"
+    },
+    {
+      "user_input": "Order #11111 is late",
+      "intent": "WISMO",
+      "entities": {
+        "order_id": "11111"
+      },
+      "system_response": "We're sorry! Order #11111 is delayed and will arrive in 2 days.",
+      "action": "Fetch Order Status"
+    },
+    {
+      "user_input": "Is order 44444 shipped yet?",
+      "intent": "WISMO",
+      "entities": {
+        "order_id": "44444"
+      },
+      "system_response": "Order #44444 has been shipped and is expected to arrive in 2 days.",
+      "action": "Fetch Order Status"
+    }
+  ],
+  "General Queries": [
+    {
+      "user_input": "Can I return a product?",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "Yes, you can return any product within 30 days of delivery. Would you like help with a return?",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "What's your return policy?",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "You can return items within 30 days. Just keep the receipt.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "Can I get faster shipping?",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "Yes! We offer express and overnight shipping options.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "Can I speak to a human?",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "Let me transfer you to a support representative.",
+      "action": "Escalate to Human"
+    },
+    {
+      "user_input": "Do you offer gift wrapping?",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "Yes, we offer gift wrapping at checkout for an additional fee.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "I can't find my order history",
+      "intent": "General Query",
+      "entities": {},
+      "system_response": "You can view your order history by logging into your account and navigating to the 'Orders' section.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "Return item from order #55555",
+      "intent": "General Query",
+      "entities": {
+        "order_id": "55555"
+      },
+      "system_response": "We\u2019ve initiated a return process for order #55555. Please follow the instructions in the email sent to you.",
+      "action": "Initiate Return"
+    },
+    {
+      "user_input": "My order 77777 was damaged",
+      "intent": "General Query",
+      "entities": {
+        "order_id": "77777"
+      },
+      "system_response": "Sorry to hear that! We'll arrange a replacement for order #77777.",
+      "action": "Initiate Replacement"
+    }
+  ],
+  "FAQ": [
+    {
+      "user_input": "What is your shipping policy?",
+      "intent": "FAQ",
+      "entities": {},
+      "system_response": "Standard shipping takes 3\u20135 business days. Express options are also available.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "How do I cancel an order?",
+      "intent": "FAQ",
+      "entities": {},
+      "system_response": "To cancel an order, just tell us the order number and we\u2019ll take care of it.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "What's the delivery time for express shipping?",
+      "intent": "FAQ",
+      "entities": {},
+      "system_response": "Express shipping takes 1\u20132 business days.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "Where can I track my order?",
+      "intent": "FAQ",
+      "entities": {},
+      "system_response": "You can track your order using the tracking link sent in your confirmation email.",
+      "action": "Provide FAQ"
+    },
+    {
+      "user_input": "How can I update my shipping address?",
+      "intent": "FAQ",
+      "entities": {},
+      "system_response": "You can update your shipping address before the order is shipped by going to your account settings.",
+      "action": "Provide FAQ"
+    }
+  ],
+  "Chatbot Feedback": [
+    {
+      "user_input": "This chatbot is terrible",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Negative"
+      },
+      "system_response": "We're sorry to hear that. Your feedback helps us improve.",
+      "action": "Log Feedback"
+    },
+    {
+      "user_input": "Your bot is great!",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Positive"
+      },
+      "system_response": "Thanks for the kind words!",
+      "action": "Log Feedback"
+    },
+    {
+      "user_input": "This isn't helpful",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Negative"
+      },
+      "system_response": "We\u2019re sorry you're having trouble. Let us know how we can assist.",
+      "action": "Log Feedback"
+    },
+    {
+      "user_input": "I love this service",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Positive"
+      },
+      "system_response": "Thanks for your feedback!",
+      "action": "Log Feedback"
+    },
+    {
+      "user_input": "Thanks for the quick help!",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Positive"
+      },
+      "system_response": "You're welcome! We're glad to assist.",
+      "action": "Log Feedback"
+    },
+    {
+      "user_input": "You guys are the worst!",
+      "intent": "Feedback",
+      "entities": {
+        "sentiment": "Negative"
+      },
+      "system_response": "We\u2019re sorry to hear that. We'll review your feedback and work to improve.",
+      "action": "Log Feedback"
+    }
+  ]
+}

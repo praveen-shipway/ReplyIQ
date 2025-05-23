@@ -1,0 +1,102 @@
+[
+  {
+    "test_case_id": "TC_OC_001",
+    "title": "Cancel valid order",
+    "preconditions": "Order #12345 exists and is eligible for cancellation",
+    "user_input": "Cancel my order 12345",
+    "expected_intent": "Order Cancelation",
+    "expected_entities": { "order_id": "12345" },
+    "expected_response": "Order #12345 has been successfully canceled.",
+    "expected_action": "Cancel Order"
+  },
+  {
+    "test_case_id": "TC_OC_002",
+    "title": "Attempt to cancel already shipped order",
+    "preconditions": "Order #54321 is already shipped",
+    "user_input": "I want to cancel 54321",
+    "expected_intent": "Order Cancelation",
+    "expected_entities": { "order_id": "54321" },
+    "expected_response": "Order #54321 has already shipped and cannot be canceled.",
+    "expected_action": "Inform Cannot Cancel"
+  },
+  {
+    "test_case_id": "TC_WISMO_001",
+    "title": "Track order with valid ID",
+    "preconditions": "Order #88888 exists",
+    "user_input": "Where is my order 88888?",
+    "expected_intent": "WISMO",
+    "expected_entities": { "order_id": "88888" },
+    "expected_response": "Order #88888 is in transit and will be delivered tomorrow.",
+    "expected_action": "Fetch Order Status"
+  },
+  {
+    "test_case_id": "TC_WISMO_002",
+    "title": "Track order without providing order ID",
+    "preconditions": "None",
+    "user_input": "Where's my stuff?",
+    "expected_intent": "WISMO",
+    "expected_entities": {},
+    "expected_response": "Can you please provide your order number?",
+    "expected_action": "Request Order ID"
+  },
+  {
+    "test_case_id": "TC_GQ_001",
+    "title": "Ask about return policy",
+    "preconditions": "None",
+    "user_input": "Can I return a product?",
+    "expected_intent": "General Query",
+    "expected_entities": {},
+    "expected_response": "Yes, you can return any product within 30 days.",
+    "expected_action": "Provide FAQ"
+  },
+  {
+    "test_case_id": "TC_GQ_002",
+    "title": "Ask to speak to a human",
+    "preconditions": "None",
+    "user_input": "Can I speak to a human?",
+    "expected_intent": "General Query",
+    "expected_entities": {},
+    "expected_response": "Let me transfer you to a support representative.",
+    "expected_action": "Escalate to Human"
+  },
+  {
+    "test_case_id": "TC_FAQ_001",
+    "title": "Ask about shipping time",
+    "preconditions": "None",
+    "user_input": "What is your shipping policy?",
+    "expected_intent": "FAQ",
+    "expected_entities": {},
+    "expected_response": "Standard shipping takes 3–5 business days.",
+    "expected_action": "Provide FAQ"
+  },
+  {
+    "test_case_id": "TC_FAQ_002",
+    "title": "Ask about how to cancel an order",
+    "preconditions": "None",
+    "user_input": "How can I cancel an order?",
+    "expected_intent": "FAQ",
+    "expected_entities": {},
+    "expected_response": "Just provide your order number and we’ll cancel it for you.",
+    "expected_action": "Provide FAQ"
+  },
+  {
+    "test_case_id": "TC_FB_001",
+    "title": "Provide positive feedback",
+    "preconditions": "None",
+    "user_input": "Great service!",
+    "expected_intent": "Feedback",
+    "expected_entities": { "sentiment": "Positive" },
+    "expected_response": "Thanks for your feedback!",
+    "expected_action": "Log Feedback"
+  },
+  {
+    "test_case_id": "TC_FB_002",
+    "title": "Provide negative feedback",
+    "preconditions": "None",
+    "user_input": "This bot is useless",
+    "expected_intent": "Feedback",
+    "expected_entities": { "sentiment": "Negative" },
+    "expected_response": "We’re sorry to hear that. Your feedback helps us improve.",
+    "expected_action": "Log Feedback"
+  }
+]
