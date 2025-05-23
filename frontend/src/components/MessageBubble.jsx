@@ -25,7 +25,7 @@ export default function MessageBubble({ from, text, reactions = [], onReact, bot
 
   return (
     <div
-      className={`d-flex mb-2 ${from === 'user' ? 'justify-content-end ms-5' : 'justify-content-start me-5'}`}
+      className={`d-flex mb-2 ${from === 'user' ? 'justify-content-end ms-5 mt-4' : 'justify-content-start me-5 mt-4'}`}
     >
       <div className="position-relative">
         <div
