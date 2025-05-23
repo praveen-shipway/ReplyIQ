@@ -1,12 +1,12 @@
 # Sample dummy data for simulation
 dummy_orders = {
-    "12345": {"status": "processing", "can_cancel": True},
-    "54321": {"status": "shipped", "can_cancel": False}
+    "ord1": {"status": "processing", "can_cancel": True},
+    "ord2": {"status": "shipped", "can_cancel": False}
 }
 
 dummy_tracking = {
-    "12345": {"status": "Out for delivery"},
-    "AWB123": {"status": "Delivered"}
+    "awb1": {"status": "Out for delivery"},
+    "awb2": {"status": "Delivered"}
 }
 
 dummy_faqs = {
