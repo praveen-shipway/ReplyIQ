@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from services.intent import detect_intent
-from services.intent_dispatcher import fulfill_intent
+from services.intent import extract_info
 from core.sessions import get_session, update_session, append_to_history
 from humanizer import humanize_reply
 
@@ -20,7 +19,7 @@ async def chat_handler(request: ChatRequest):
     # append_to_history(request.user_id, "user", request.message)
 
     # Rishabh ************************** Detect Intent & Parameters to further process the intent
-    intent = await detect_intent(request.message)
+    intent = await extract_info(request.message)
 
     # Praveen ************************** Fulfill the intent
     raw_reply = await fulfill_intent(intent, request.message, request.phone_no)
