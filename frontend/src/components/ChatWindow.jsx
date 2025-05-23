@@ -36,6 +36,8 @@ export default function ChatWindow() {
 
   try {
       const res= await axios.post('http://localhost:8000/chat', {
+          "user_id": "puneet05",
+          "session_id": "session123",
           "message": text
         }, 
         {
