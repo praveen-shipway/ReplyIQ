@@ -38,11 +38,27 @@ excluded_words = set([
 
 # --- Specific ID Patterns ---
 id_patterns = {
-    "ORDER_ID": [
+     "ORDER_ID": [
+        # New Pattern: Catches any alphanumeric string directly following "order", "order is", "order ID is".
+        # This is a broad catch for unformatted or unusual IDs when context is present.
+        # Examples: "my order EFNFNKN", "order is 123ABC", "order ID is XYZ"
+        r'(?:order|order\s*is|order\s*id\s*is)\s*([A-Za-z0-9-]{4,30})\b',
+
+        # Pattern 1: Explicitly stated order ID (e.g., "order id: ABC123", "purchase #XYZ")
+        # Captures alphanumeric strings (4-20 chars) following common order ID phrases like 'id', '#'.
         r'(?:order\s*id|order\s*#|purchase\s*id)\s*[:=\s]?\s*([A-Za-z0-9]{4,20})\b',
-        r'\b(\d{5,15})\b', # Purely numeric order IDs
-        r'\b([A-Z]{2,5}\d{4,15}[A-Z]{0,5})\b', # Alpha-numeric order IDs (e.g., AB12345C)
-        r'\b([A-Z0-9]{6,15})\b', # More general alphanumeric, minimum 6 characters
+
+        # Pattern 2: Purely numeric order ID (e.g., "my order 12345")
+        # Catches standalone numbers that are 5 to 15 digits long.
+        r'\b(\d{5,15})\b',
+
+        # Pattern 3: Structured alphanumeric order ID (e.g., "AB12345C", "INV98765")
+        # Starts with 2-5 uppercase letters, followed by 4-15 digits, optionally ending with 0-5 uppercase letters.
+        r'\b([A-Z]{2,5}\d{4,15}[A-Z]{0,5})\b',
+
+        # Pattern 4: General alphanumeric order ID (e.g., "XYZABC01", "EFNFNKN")
+        # Catches any combination of 6 to 15 uppercase letters or digits.
+        r'\b([A-Z0-9]{6,15})\b',
     ],
     "TRACKING_ID": [
         # Explicit phrases
