@@ -1,14 +1,14 @@
-async def fulfill_intent(intent: str, message: str,phone_no:str, session: dict):
+async def fulfill_intent(intent: str,entities: dict, missing, message: str,phone_no:str, session: dict):
     if intent == 'wismo':
-        return await handle_wismo(session)
+        return await handle_wismo(session,entities,missing)
     elif intent == 'reschedule':
-        return await handle_reschedule(message, session)
+        return await handle_reschedule(message, session,entities,missing)
     elif intent == 'cancel':
-        return await handle_cancel(message, session)
+        return await handle_cancel(message, session,entities,missing)
     elif intent == 'faq':
-        return await handle_faq(message)
+        return await handle_faq(message,entities,missing)
     else:
-        return await handle_general(message, session)
+        return await handle_general(message, session,entities,missing)
 
 async def handle_wismo(session,phone_no):
     order = session.get('order_context')
