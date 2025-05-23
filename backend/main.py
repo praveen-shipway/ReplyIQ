@@ -8,9 +8,7 @@ from humanizer import humanize_reply
 app = FastAPI()
 
 class ChatRequest(BaseModel):
-    user_id: str
     message: str
-    phone_no : str
 
 @app.post("/chat")
 async def chat_handler(request: ChatRequest):
@@ -20,14 +18,15 @@ async def chat_handler(request: ChatRequest):
     # append_to_history(request.user_id, "user", request.message)
 
     # Rishabh ************************** Detect Intent & Parameters to further process the intent
-    msg_extracted_info = await extract_info(request.message)
-
+    print('request.message', request.message)
+    msg_extracted_info = extract_info(request.message)
+    print('msg_extracted_info', msg_extracted_info)
     # Praveen ************************** Fulfill the intent
-    raw_reply = await fulfill_intent(msg_extracted_info)
-
+    raw_reply = fulfill_intent(msg_extracted_info)
+    print('raw_reply', raw_reply)
     # Puneet ************************** Humanize the reply
     reply = await humanize_reply(raw_reply)
-
+    print('reply', reply)
     # Store bot response
     # append_to_history(request.user_id, "assistant", reply)
 
