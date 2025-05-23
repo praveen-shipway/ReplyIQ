@@ -30,7 +30,7 @@ def order_cancel(entities):
 
 def wismo(entities):
     order_id = entities.get("ORDER_ID")
-    awb = entities.get("awb")
+    awb = entities.get("TRACKING_NUMBER")
 
     if not order_id and not awb:
         return "Please provide either order ID or AWB to track your order."
