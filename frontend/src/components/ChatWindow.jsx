@@ -92,7 +92,7 @@ export default function ChatWindow() {
         </div>
           {/* Show QuickReplies only if user hasn't sent a message */}
         <div style={{ display: hasUserSentMessage ? 'none' : 'block' }}>
-          <QuickReplies onSend={sendMessage} />
+          {/* <QuickReplies onSend={sendMessage} /> */}
         </div>
 
         {/* <QuickReplies onSend={sendMessage} /> */}

@@ -1,17 +1,31 @@
 import '../App.css'
 import { useState } from 'react'
+import { ThumbsUp, ThumbsDown } from 'lucide-react'
 
-export default function MessageBubble({ from, text, reactions = [], onReact , botIndex}) {
-  const [showReactions, setShowReactions] = useState(false)
-  const availableReactions = ['❤️', '😂', '👍', '😮', '😢']
+export default function MessageBubble({ from, text, reactions = [], onReact, botIndex }) {
+  const availableReactions = [
+    { id: 1, icon: <ThumbsUp size={20} strokeWidth={1.5} /> },   // like = 1
+    { id: 0, icon: <ThumbsDown size={20} strokeWidth={1.5} /> }, // dislike = 0
+  ];
 
-const isBot = from === 'bot'
+  const [hasReacted, setHasReacted] = useState(false);
+
+  const handleReact = (reactionId) => {
+    let value;
+    if (reactionId === 1) {
+      value = 1;
+    } else if (reactionId === 0) {
+      value = -1;
+    }
+
+    console.log('Reaction value:', value);
+    onReact(reactionId); // send id to parent
+    setHasReacted(true);
+  };
 
   return (
     <div
-      className={`d-flex mb-2 ${from === 'user' ? 'justify-content-end' : 'justify-content-start'}`}
-      onMouseEnter={() => isBot && setShowReactions(true)}
-      onMouseLeave={() => isBot && setShowReactions(false)}
+      className={`d-flex mb-2 ${from === 'user' ? 'justify-content-end ms-5' : 'justify-content-start me-5'}`}
     >
       <div className="position-relative">
         <div
@@ -21,10 +35,9 @@ const isBot = from === 'bot'
               : 'bot-bubble text-white border-radius-str-bot bg-primary'
           }`}
           style={{
-            maxWidth: '65%',
-            display: 'inline',
-            whiteSpace: 'pre-wrap',
-            wordWrap: 'break-word',
+            maxWidth: '100%',
+            whiteSpace: 'normal',
+            wordWrap: 'anywhere',
             padding: '6px 12px',
             margin: '0px 3px',
           }}
@@ -32,35 +45,38 @@ const isBot = from === 'bot'
           {text}
         </div>
 
-        {/* Show existing reactions below message */}
+        {/* Reactions display */}
         {reactions.length > 0 && (
-          <div className="mt-1 d-flex gap-1 justify-content-end">
-            {reactions.map((r, i) => (
-              <span key={i} style={{ fontSize: '14px' }}>
-                {r}
-              </span>
-            ))}
+          <div className="mt-1 d-flex gap-2 justify-content-end">
+            {reactions.map((reaction, i) => {
+              const match = availableReactions.find(r => r.id === reaction);
+              return (
+                <span key={i} style={{ fontSize: '14px' }}>
+                  {match?.icon}
+                </span>
+              );
+            })}
           </div>
         )}
 
-        {/* Reactions picker on hover */}
-        {showReactions && from === 'bot' && botIndex >= 2 &&(
+        {/* Reaction picker */}
+        {from === 'bot' && botIndex >= 2 && !hasReacted && (
           <div
-            className="position-absolute right-0  bg-none rounded shadow-sm d-flex p-1 gap-2"
-            style={{ zIndex: 100, top:'13%', right:'-63%' }}
+            className="position-absolute right-0 bg-none rounded shadow-sm d-flex p-1 gap-3"
+            style={{ zIndex: 100, right: '5%' }}
           >
-            {availableReactions.map((emoji) => (
+            {availableReactions.map(({ id, icon }) => (
               <span
-                key={emoji}
-                style={{ cursor: 'pointer', fontSize: '14px' }}
-                onClick={() => onReact(emoji)}
+                key={id}
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleReact(id)}
               >
-                {emoji}
+                {icon}
               </span>
             ))}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
