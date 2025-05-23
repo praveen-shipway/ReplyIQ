@@ -1,6 +1,6 @@
-import requests
+import httpx
 
-def humanize_reply(processed_reply, user_message=None, intent=None):
+async def humanize_reply(processed_reply):
     """
     Use AI API to convert system-generated reply into a human-friendly message.
     """
@@ -13,10 +13,6 @@ def humanize_reply(processed_reply, user_message=None, intent=None):
     )
 
     user_prompt = f"System reply: {processed_reply}"
-    if intent:
-        user_prompt += f"\nIntent: {intent}"
-    if user_message:
-        user_prompt += f"\nUser's original message: {user_message}"
 
     messages = [
         {"role": "system", "content": system_prompt},
@@ -34,8 +30,9 @@ def humanize_reply(processed_reply, user_message=None, intent=None):
         "temperature": 0.7,
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-    response.raise_for_status()
-    data = response.json()
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
 
     return data['choices'][0]['message']['content'].strip()
