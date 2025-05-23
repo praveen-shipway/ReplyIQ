@@ -33,7 +33,11 @@ excluded_words = set([
     "where", "track", "status", "cancel", "refund", "need", "tell", "what", "update",
     "modify", "order", "delivery", "shipment", "item", "product", "purchase", "check",
     "me", "my", "your", "the", "a", "an", "is", "of", "to", "for", "in", "it", "this",
-    "number", "id", "date" # Added "date"
+    "number", "id", "date", # Original words
+    "from", "on", "by", "with", # ADDED "with" and other common prepositions/conjunctions
+    "and", "or", "but", "so", "then", "also", "just", "please", "can", "could", "would",
+    "traking", "trackingnumber",
+    "awb",
 ])
 
 # --- Specific ID Patterns ---
