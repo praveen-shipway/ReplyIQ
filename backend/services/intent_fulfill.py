@@ -15,7 +15,7 @@ dummy_faqs = {
 }
 
 def order_cancel(entities):
-    order_id = entities.get("order_id")
+    order_id = entities.get("ORDER_ID")
     if not order_id:
         return "Missing order_id for cancellation."
 
@@ -29,7 +29,7 @@ def order_cancel(entities):
         return f"Order #{order_id} has already shipped and cannot be canceled."
 
 def wismo(entities):
-    order_id = entities.get("order_id")
+    order_id = entities.get("ORDER_ID")
     awb = entities.get("awb")
 
     if not order_id and not awb:
@@ -59,12 +59,12 @@ def fulfill_intent(msg_extracted_info):
 
     if missing:
         return f"Missing required information: {', '.join(missing)}"
-
-    if intent == "Order Cancelation":
+    intent_upper = intent.upper()
+    if intent_upper == "CANCEL":
         return order_cancel(entities)
-    elif intent == "WISMO":
+    elif intent_upper == "WISMO":
         return wismo(entities)
-    elif intent == "FAQ":
+    elif intent_upper == "FAQ":
         return faq(entities)
     else:
         return "Unknown intent. Please try again."
