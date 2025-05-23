@@ -21,7 +21,7 @@ intent_keywords = {
 
 # Define required entities for each intent
 required_entities_for_intent = {
-    "wismo": ["ORDER_ID_OR_TRACKING_ID"],
+    "wismo": ["ORDER_ID_OR_TRACKING_NUMBER"],
     "cancel": ["ORDER_ID"],
     "reschedule": ["ORDER_ID"],
     "general": [],
@@ -38,7 +38,7 @@ excluded_words = set([
 
 # --- Specific ID Patterns ---
 id_patterns = {
-     "ORDER_ID": [
+    "ORDER_ID": [
         # New Pattern: Catches any alphanumeric string directly following "order", "order is", "order ID is".
         # This is a broad catch for unformatted or unusual IDs when context is present.
         # Examples: "my order EFNFNKN", "order is 123ABC", "order ID is XYZ"
@@ -60,12 +60,18 @@ id_patterns = {
         # Catches any combination of 6 to 15 uppercase letters or digits.
         r'\b([A-Z0-9]{6,15})\b',
     ],
-    "TRACKING_ID": [
-        # Explicit phrases
-        r'(?:tracking\s*id|tracking\s*number|tracking\s*#|track\s*num)\s*[:=\s]?\s*([A-Za-z0-9-]{10,35})\b', # Increased max length
-        # Common carrier-specific patterns (YOU MUST CUSTOMIZE THESE!)
-        r'\b(1Z[A-Z0-9]{16})\b', # Example: UPS tracking number
-        r'\b(94\d{20,25})\b', # Example: USPS tracking number (long numeric)
+    "TRACKING_NUMBER": [
+        # NEW / MODIFIED PATTERN: Catches any alphanumeric string after common tracking or AWB phrases.
+        # This is a broad, high-priority pattern for explicit tracking/AWB context.
+        # Examples: "track my 123XYZ", "tracking number ABC-456", "awb is BLAH789", "awb number DED456"
+        r'(?:track|tracking\s*number|awb\s*number|awb\s*is|awb)\s*([A-Za-z0-9-]{6,35})\b',
+
+        # Explicit phrases for tracking IDs (e.g., "tracking ID: 123ABC", "track num XYZ-987")
+        r'(?:tracking\s*id|tracking\s*number|tracking\s*#|track\s*num)\s*[:=\s]?\s*([A-Za-z0-9-]{10,35})\b', 
+        
+        # Common carrier-specific tracking patterns (UPS, USPS, etc.)
+        r'\b(1Z[A-Z0-9]{16})\b',    # Example: UPS tracking number
+        r'\b(94\d{20,25})\b',      # Example: USPS tracking number (long numeric)
         r'\b([A-Z]{2}\d{9}[A-Z]{2})\b' # Example: Royal Mail/PostNL international format
     ],
     "CARRIER_ID": [
@@ -114,13 +120,13 @@ def extract_info(text):
     # Prioritize IDs mentioned with clear context ("tracking ID is", "order ID is")
     
     # Try to extract Tracking ID (highest priority for explicit mention)
-    for pattern in id_patterns.get("TRACKING_ID", []):
+    for pattern in id_patterns.get("TRACKING_NUMBER", []):
         match = re.search(pattern, lower_text)
         if match:
             extracted_id = match.group(1).upper().replace('-', '').strip()
             if len(extracted_id) > 5 and extracted_id.lower() not in excluded_words:
-                entities["TRACKING_ID"] = extracted_id
-                break # Break from patterns for TRACKING_ID if found, move to next ID type (ORDER_ID)
+                entities["TRACKING_NUMBER"] = extracted_id
+                break # Break from patterns for TRACKING_NUMBER if found, move to next ID type (ORDER_ID)
 
     # Try to extract Order ID (high priority for explicit mention)
     for pattern in id_patterns.get("ORDER_ID", []):
@@ -128,8 +134,8 @@ def extract_info(text):
         if match:
             extracted_id = match.group(1).upper().replace('-', '').strip()
             if len(extracted_id) >= 4 and extracted_id.lower() not in excluded_words:
-                # Crucial: Only add if not already extracted as a TRACKING_ID (if your IDs can overlap)
-                if "TRACKING_ID" in entities and entities["TRACKING_ID"] == extracted_id:
+                # Crucial: Only add if not already extracted as a TRACKING_NUMBER (if your IDs can overlap)
+                if "TRACKING_NUMBER" in entities and entities["TRACKING_NUMBER"] == extracted_id:
                     pass # Already identified as tracking ID, don't overwrite with Order ID
                 else:
                     entities["ORDER_ID"] = extracted_id
@@ -167,7 +173,7 @@ def extract_info(text):
             potential_date_str = ''.join(filter(None, date_tuple)).replace('/', '').replace('-', '').replace('.', '') # Clean up
             # Only process if this string hasn't been identified as an ID already
             if (potential_date_str not in entities.get("ORDER_ID", "") and
-                potential_date_str not in entities.get("TRACKING_ID", "") and
+                potential_date_str not in entities.get("TRACKING_NUMBER", "") and
                 potential_date_str not in entities.get("CARRIER_ID", "")):
                 
                 parsed_date = is_valid_date_format(potential_date_str)
@@ -184,7 +190,7 @@ def extract_info(text):
                 potential_date_str = ent.text.lower().replace('/', '').replace('-', '').replace('.', '')
                 # Ensure spaCy's date entity isn't already an ID
                 if (potential_date_str not in entities.get("ORDER_ID", "") and
-                    potential_date_str not in entities.get("TRACKING_ID", "") and
+                    potential_date_str not in entities.get("TRACKING_NUMBER", "") and
                     potential_date_str not in entities.get("CARRIER_ID", "")):
                     
                     parsed_from_spacy = is_valid_date_format(ent.text)
@@ -204,9 +210,9 @@ def extract_info(text):
 
     # --- Step 4: Validate required entities for intent ---
     missing_entities = []
-    if detected_intent == "wismo" and "ORDER_ID_OR_TRACKING_ID" in required_entities_for_intent.get(detected_intent, []):
-        if "ORDER_ID" not in entities and "TRACKING_ID" not in entities:
-            missing_entities.append("ORDER_ID_OR_TRACKING_ID")
+    if detected_intent == "wismo" and "ORDER_ID_OR_TRACKING_NUMBER" in required_entities_for_intent.get(detected_intent, []):
+        if "ORDER_ID" not in entities and "TRACKING_NUMBER" not in entities:
+            missing_entities.append("ORDER_ID_OR_TRACKING_NUMBER")
     elif detected_intent in required_entities_for_intent:
         for entity in required_entities_for_intent[detected_intent]:
             if entity not in entities:
@@ -217,7 +223,7 @@ def extract_info(text):
 
 # # Example test cases
 # messages = [
-#     "User Message: Cancel my order 45321.",                 # ORDER_ID: 45321
+#     "User Message: Cancel my order efnfnkn.",                 # ORDER_ID: 45321
 #     "User Message: Where is my package? My tracking ID is 9412345678901234567890", # Should be TRACKING_ID only
 #     "User Message: Track my shipment 789XYZ.",
 #     "User Message: I need to reschedule my order.",
