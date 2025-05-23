@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-       <div className=" bg-light d-flex " style={{borderRadius:'15px'}}>
+       <div className=" bg-light d-flex " style={{borderRadius:'15px', width:'400px'}}>
           <div className="w-100 border shadow  bg-white d-flex flex-column " 
           style={{ maxWidth: 400, height: '90vh',  borderRadius: '15px', // Rounded corners
                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)', // Soft shadow

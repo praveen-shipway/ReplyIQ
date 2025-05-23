@@ -1,21 +1,15 @@
-import { useState } from "react"
 
-export default function ChatHeader( {onBack, isTyping, onNewChat }) {
+export default function ChatHeader( ) {
   
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
 
-  const toggleDropdown = () => setOpen(!open)
-  const closeDropdown = () => setOpen(false)
+  // const toggleDropdown = () => setOpen(!open)
+  // const closeDropdown = () => setOpen(false)
 
   return (
     <>
    <div className="d-flex align-items-center justify-content-between border-bottom" style={{ padding: '5px' }}>
   <div className="d-flex align-items-center gap-2">
-    <i
-      className="bi bi-arrow-left"
-      style={{ fontSize: '15px', cursor: 'pointer' }}
-      onClick={onBack}
-    />
     <img
       src="src/assets/profile.avif"
       alt="React Logo"
@@ -24,13 +18,10 @@ export default function ChatHeader( {onBack, isTyping, onNewChat }) {
       height="40"
     />
     <div className="d-grid gap-0">
-        <div className="fw-bold pt-2">Reply IQ</div>
-        <span className="text-muted" style={{ fontSize: '12px' }}>
-            {isTyping ? 'typing...' : 'Online'}
-        </span>
+        <div className="fw-bold ">ReplyIQ</div>
     </div>
   </div>
-
+{/* 
   <div className="dropdown">
     <i
       className="bi bi-three-dots-vertical"
@@ -60,7 +51,7 @@ export default function ChatHeader( {onBack, isTyping, onNewChat }) {
       <li><hr className="dropdown-divider" /></li>
       <li><button className="dropdown-item text-danger" type="button">Logout</button></li>
     </ul>
-  </div>
+  </div> */}
 </div>
 
     </>
