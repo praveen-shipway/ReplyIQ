@@ -52,4 +52,7 @@ async def humanize_reply(processed_reply):
         response.raise_for_status()
         data = response.json()
 
-    return data['choices'][0]['message']['content'].strip()
+    response_content = data['choices'][0]['message']['content'].strip()
+    if not response_content:
+        return "I'm sorry, I couldn't find any information on that. Can you please provide more details?"
+    return response_content

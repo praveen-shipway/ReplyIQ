@@ -23,8 +23,8 @@ dummy_faqs = {
 }
 
 def order_cancel(entities):
-    order_id = entities.get("order_id")
-    awb = entities.get("awb")
+    order_id = entities.get("ORDER_ID")
+    awb = entities.get("TRACKING_NUMBER")
 
     if not order_id and not awb:
         return "Missing order_id or awb for cancellation."
@@ -71,33 +71,36 @@ def faq(entities):
 def fulfill_intent(msg_extracted_info):
     intent = msg_extracted_info.get("intent", "").lower()
     entities = msg_extracted_info.get("entities", {})
-    missing = msg_extracted_info.get("missing", [])
 
-    if missing:
-        return f"Missing required information: {', '.join(missing)}"
-
-    if intent in ["cancel", "order cancelation"]:
-        return order_cancel(entities)
-    elif intent == "wismo":
-        return wismo(entities)
-    elif intent == "faq":
-        return faq(entities)
+    if intent in ["cancel", "wismo", "reschedule"]:
+        if len(entities) == 0:
+            return f"Missing required information order_id or awb"
+        else:
+            if intent == "cancel":
+                return order_cancel(entities)
+            elif intent == "wismo":
+                return wismo(entities)
+            # elif intent == "reschedule":
+            #     return reschedule(entities)
     else:
-        return "Unknown intent. Please try again."
+        if intent == "faq":
+            return faq(entities)
+        else:
+            return "Unknown intent. Please try again."
 
 # Example test
-if __name__ == "__main__":
-    test_cases = [
-        {"intent": "Order Cancelation", "entities": {"order_id": "ord1"}, "missing": []},
-        {"intent": "Order Cancelation", "entities": {"awb": "awb2"}, "missing": []},
-        {"intent": "WISMO", "entities": {"order_id": "ord2"}, "missing": []},
-        {"intent": "WISMO", "entities": {"awb": "awb1"}, "missing": []},
-        {"intent": "FAQ", "entities": {"question": "What is your shipping policy?"}, "missing": []},
-        {"intent": "FAQ", "entities": {"question": "How do I cancel an order?"}, "missing": []},
-        {"intent": "Order Cancelation", "entities": {}, "missing": ["order_id or awb"]}
-    ]
+# if __name__ == "__main__":
+#     test_cases = [
+#         {"intent": "Order Cancelation", "entities": {"order_id": "ord1"}, "missing": []},
+#         {"intent": "Order Cancelation", "entities": {"awb": "awb2"}, "missing": []},
+#         {"intent": "WISMO", "entities": {"order_id": "ord2"}, "missing": []},
+#         {"intent": "WISMO", "entities": {"awb": "awb1"}, "missing": []},
+#         {"intent": "FAQ", "entities": {"question": "What is your shipping policy?"}, "missing": []},
+#         {"intent": "FAQ", "entities": {"question": "How do I cancel an order?"}, "missing": []},
+#         {"intent": "Order Cancelation", "entities": {}, "missing": ["order_id or awb"]}
+#     ]
 
-    for case in test_cases:
-        print(f">>> Input: {case}")
-        print(fulfill_intent(case))
-        print("-" * 50)
+#     for case in test_cases:
+#         print(f">>> Input: {case}")
+#         print(fulfill_intent(case))
+#         print("-" * 50)

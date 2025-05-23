@@ -35,21 +35,21 @@ export default function ChatWindow() {
     setIsTyping(true);
 
   try {
-   const res= await axios.post('https://jsonplaceholder.typicode.com/posts', {
-      message: text,
-      sessionId: 'demo-session-123',
-    });
+      const res= await axios.post('http://localhost:8000/chat', {
+          "message": text
+        }, 
+        {
+          headers: {
+              "Content-Type": "application/json", 
+          }
+        }
+      );
 
-    
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { from: 'bot', text: `API replied with ID: ${res.data.id}` }]);
-        setIsTyping(false);
-      }, 1000);
+      // console.log('res', res);
+
+      setMessages((prev) => [...prev, { from: 'bot', text: res.data.reply }]);
     } catch (err) {
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { from: 'bot', text: 'Something went wrong!' }],err);
-        setIsTyping(false);
-      }, 1000);
+      setMessages((prev) => [...prev, { from: 'bot', text: 'Something went wrong!' }],err);
     }
   };
 
