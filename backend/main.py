@@ -26,7 +26,7 @@ async def chat_handler(request: ChatRequest):
     raw_reply = await fulfill_intent(msg_extracted_info)
 
     # Puneet ************************** Humanize the reply
-    reply = humanize_reply(raw_reply)
+    reply = await humanize_reply(raw_reply)
 
     # Store bot response
     # append_to_history(request.user_id, "assistant", reply)
