@@ -32,7 +32,5 @@ async def chat_handler(request: ChatRequest):
     # append_to_history(request.user_id, "assistant", reply)
 
     return {
-        "reply": reply,
-        "intent": intent,
-        # "history": session["history"]
+        "reply": reply
     }
