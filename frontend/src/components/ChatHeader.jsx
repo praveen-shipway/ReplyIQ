@@ -8,7 +8,7 @@ export default function ChatHeader( ) {
 
   return (
     <>
-   <div className="d-flex align-items-center justify-content-between border-bottom" style={{ padding: '5px' }}>
+   <div className="d-flex align-items-center justify-content-between border-bottom header-section" >
   <div className="d-flex align-items-center gap-2">
     <img
       src="src/assets/profile.avif"

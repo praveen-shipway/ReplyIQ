@@ -12,7 +12,7 @@ export default function ChatInput({ onSend }) {
   }
 
   return (
-   <div className="p-2 border-top d-flex align-items-center gap-2">
+   <div className="p-2 d-flex align-items-center gap-2 input-area ">
       <input
         type="text"
         className="form-control rounded-pill"

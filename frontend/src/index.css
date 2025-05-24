@@ -96,11 +96,31 @@ button:focus-visible {
   border-bottom-left-radius: 16px;
 }
 .user-bubble {
-  background-color: #6c6ce0; /* Purple-ish for user */
+  background-color: #6366F1; /* Indigo-500 */
   color: white;
+
 }
 
 .bot-bubble {
-  background-color: #6c757d; /* Light gray for bot */
-  color: black;
+  background-color: #E0E7FF; /* Indigo-100 */
+  color: #1E3A8A;            /* Indigo-900 */
+
+}
+
+
+.header-section {
+    background-color: #4F46E5;
+    color: white;
+    padding: 5px;
+}
+
+.chat-window {
+  background-color: #F9FAFB; /* Gray-50 from Tailwind */
+
+}
+
+.input-area {
+  background-color: white;  
+  border-top: 1px solid #E5E7EB; /* Gray-200 */
+
 }
