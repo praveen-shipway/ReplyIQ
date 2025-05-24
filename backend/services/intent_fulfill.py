@@ -4,14 +4,29 @@ import aiohttp
 # Sample dummy data for simulation (ORDER_ID or AWB can be used)
 dummy_orders = {
     "ord1": {"status": "processing", "can_cancel": True, "awb": "awb1"},
-    "ord2": {"status": "shipped", "can_cancel": False, "awb": "awb2"}
+    "ord2": {"status": "shipped", "can_cancel": False, "awb": "awb2"},
+    "ord3": {"status": "delivered", "can_cancel": False, "awb": "awb3"},
+    "ord4": {"status": "processing", "can_cancel": True, "awb": "awb4"},
+    "ord5": {"status": "canceled", "can_cancel": False, "awb": "awb5"},
+    "ord6": {"status": "out for delivery", "can_cancel": True, "awb": "awb6"},
+    "ord7": {"status": "returned", "can_cancel": False, "awb": "awb7"},
 }
 
 dummy_tracking = {
     "ord1": {"status": "Out for delivery"},
     "ord2": {"status": "Delivered"},
+    "ord3": {"status": "Delivered"},
+    "ord4": {"status": "Processing"},
+    "ord5": {"status": "Canceled"},
+    "ord6": {"status": "Out for delivery"},
+    "ord7": {"status": "Returned"},
     "awb1": {"status": "Out for delivery"},
-    "awb2": {"status": "Delivered"}
+    "awb2": {"status": "Delivered"},
+    "awb3": {"status": "Delivered"},
+    "awb4": {"status": "Processing"},
+    "awb5": {"status": "Canceled"},
+    "awb6": {"status": "Out for delivery"},
+    "awb7": {"status": "Returned"},
 }
 
 dummy_faqs = {
@@ -29,15 +44,11 @@ def order_cancel(entities):
     order_id = entities.get("ORDER_ID")
     awb = entities.get("TRACKING_NUMBER")
 
-    if not order_id and not awb:
+    if not (order_id or awb):
         return "Missing order_id or awb for cancellation."
 
     # Try to find by order_id or by matching AWB
-    order = None
-    if order_id:
-        order = dummy_orders.get(order_id)
-    elif awb:
-        order = next((o for o in dummy_orders.values() if o.get("awb") == awb), None)
+    order = dummy_orders.get(order_id) if order_id else next((o for o in dummy_orders.values() if o.get("awb") == awb), None)
 
     if not order:
         return f"No order found for given ID or AWB."
@@ -51,14 +62,14 @@ def wismo(entities):
     order_id = entities.get("ORDER_ID")
     awb = entities.get("TRACKING_NUMBER")
 
-    if not order_id and not awb:
+    if not (order_id or awb):
         return "Please provide either order ID or AWB to track your order."
 
-    tracking_info = dummy_tracking.get(order_id or awb)
+    tracking_info = dummy_tracking.get(order_id) or dummy_tracking.get(awb)
     if tracking_info:
         return f"Tracking info: {tracking_info['status']}"
-    else:
-        return "No tracking information found for the given ID or AWB."
+    
+    return "No tracking information found for the given ID or AWB."
 
 def faq(entities):
     question = entities.get("question", "").lower()
