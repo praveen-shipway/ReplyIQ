@@ -12,7 +12,8 @@ async def log_interaction(
     timestamp=None
 ):
     if timestamp is None:
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now().timestamp()
+
 
     async with aiosqlite.connect("/home/puneet/Downloads/ReplyIQ/backend/mydatabase.db") as db:
         await db.execute(
@@ -64,4 +65,18 @@ async def create_chat_logs_table():
             """
         )
         await db.commit()
+
+
+async def get_session_history(session_id: str, limit: int = 5):
+    """
+    Returns a list of (user_message, bot_response) pairs from the session history.
+    """
+    async with aiosqlite.connect("/home/puneet/Downloads/ReplyIQ/backend/mydatabase.db") as db:
+        cursor = await db.execute(
+            "SELECT user_message, response_sent FROM chat_logs WHERE session_id = ? ORDER BY timestamp DESC LIMIT ?",
+            (session_id, limit)
+        )
+        rows = await cursor.fetchall()
+        await cursor.close()
+    return rows[::-1]  # reverse to chronological order
 

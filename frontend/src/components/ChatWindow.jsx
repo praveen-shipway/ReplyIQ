@@ -4,9 +4,12 @@ import MessageBubble from './MessageBubble'
 import ChatInput from './ChatInput'
 import axios from 'axios'
 import QuickReplies from './QuickReplies'
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default function ChatWindow() {
-  
+  const [userId] = useState(uuidv4()); 
+  const [sessionId] = useState(uuidv4());
 
   const [messages, setMessages] = useState([
     { from: 'bot', text: 'Hi! How can I help you today?' },
@@ -36,8 +39,8 @@ export default function ChatWindow() {
 
   try {
       const res= await axios.post('http://localhost:8000/chat', {
-          "user_id": "puneet05",
-          "session_id": "session123",
+          "user_id": userId,
+          "session_id": sessionId,
           "message": text
         }, 
         {

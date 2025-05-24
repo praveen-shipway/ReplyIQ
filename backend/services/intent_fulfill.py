@@ -1,3 +1,6 @@
+from sqlite import get_session_history
+import aiohttp
+
 # Sample dummy data for simulation (ORDER_ID or AWB can be used)
 dummy_orders = {
     "ord1": {"status": "processing", "can_cancel": True, "awb": "awb1"},
@@ -68,39 +71,104 @@ def faq(entities):
 
     return "Sorry, I couldn't find an answer to that question."
 
-def fulfill_intent(msg_extracted_info):
+
+async def fulfill_intent(msg_extracted_info, user_id, session_id, user_message):
     intent = msg_extracted_info.get("intent", "").lower()
     entities = msg_extracted_info.get("entities", {})
 
+    # Step 1: Load last N messages from session
+    history = await get_session_history(session_id, limit=5)
+    print('history', history)
+    print('intent', intent)
+
+    # Step 2: Try to recover intent from last message if this one is unknown
+    if intent == "unknown" and history:
+        last_user_msg, last_bot_reply = history[-1]
+        
+        # Send only last interaction + current to Groq for intent suggestion
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a backend logic assistant. Given the previous chat and current user message, "
+                    "determine if the new message is part of the previous intent. "
+                    "Reply only with the intent label (e.g., cancel, wismo, faq) or 'unknown'."
+                )
+            },
+            {"role": "user", "content": f"Previous user message: {last_user_msg}\nBot reply: {last_bot_reply}"},
+            {"role": "user", "content": f"Current user message: {user_message}"}
+        ]
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": "Bearer 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",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                        "messages": messages,
+                        "temperature": 0.0
+                    }
+                ) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+                    recovered_intent = data['choices'][0]['message']['content'].strip().lower()
+                    print('recovered_intent', recovered_intent)
+                    # Use recovered intent if not unknown
+                    if recovered_intent in ["cancel", "wismo", "faq", "reschedule"]:
+                        intent = recovered_intent
+
+        except Exception as e:
+            print("Intent recovery failed:", e)
+
+    # Step 3: Generate basic fallback
+    basic_reply = None
     if intent in ["cancel", "wismo", "reschedule"]:
         if len(entities) == 0:
-            return f"Missing required information order_id or awb"
+            basic_reply = "Missing required information order_id or awb"
         else:
             if intent == "cancel":
-                return order_cancel(entities)
+                basic_reply = order_cancel(entities)
             elif intent == "wismo":
-                return wismo(entities)
-            # elif intent == "reschedule":
-            #     return reschedule(entities)
+                basic_reply = wismo(entities)
+    elif intent == "faq":
+        basic_reply = faq(entities)
     else:
-        if intent == "faq":
-            return faq(entities)
-        else:
-            return "Unknown intent. Please try again."
+        basic_reply = "Unknown intent. Please try again."
 
-# Example test
-# if __name__ == "__main__":
-#     test_cases = [
-#         {"intent": "Order Cancelation", "entities": {"order_id": "ord1"}, "missing": []},
-#         {"intent": "Order Cancelation", "entities": {"awb": "awb2"}, "missing": []},
-#         {"intent": "WISMO", "entities": {"order_id": "ord2"}, "missing": []},
-#         {"intent": "WISMO", "entities": {"awb": "awb1"}, "missing": []},
-#         {"intent": "FAQ", "entities": {"question": "What is your shipping policy?"}, "missing": []},
-#         {"intent": "FAQ", "entities": {"question": "How do I cancel an order?"}, "missing": []},
-#         {"intent": "Order Cancelation", "entities": {}, "missing": ["order_id or awb"]}
-#     ]
+    # Step 4: Add chat history to system prompt for LLM
+    messages = [{
+        "role": "system",
+        "content": "You are a backend system generating helpful, structured responses based on customer support intents and previous chat history. Be precise and data-driven, without friendly human phrasing."
+    }]
+    for past_user, past_bot in history:
+        messages.append({"role": "user", "content": past_user})
+        messages.append({"role": "assistant", "content": past_bot})
+    messages.append({"role": "user", "content": f"User message: {user_message}\nDetected intent: {intent}\nEntities: {entities}"})
 
-#     for case in test_cases:
-#         print(f">>> Input: {case}")
-#         print(fulfill_intent(case))
-#         print("-" * 50)
+    # Step 5: Generate enhanced response
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+                    "messages": messages,
+                    "temperature": 0.3
+                }
+            ) as resp:
+                resp.raise_for_status()
+                data = await resp.json()
+                improved_reply = data['choices'][0]['message']['content'].strip()
+                return improved_reply
+
+    except Exception as e:
+        print(f"LLM fallback used due to error: {e}")
+        return basic_reply

@@ -35,7 +35,7 @@ async def chat_handler(request: ChatRequest):
     msg_extracted_info = extract_info(request.message)
     print('msg_extracted_info', msg_extracted_info)
     # Praveen ************************** Fulfill the intent
-    raw_reply = fulfill_intent(msg_extracted_info)
+    raw_reply = await fulfill_intent(msg_extracted_info, request.user_id, sessionId, request.message)
     print('raw_reply', raw_reply)
     # Puneet ************************** Humanize the reply
     reply = await humanize_reply(raw_reply)
