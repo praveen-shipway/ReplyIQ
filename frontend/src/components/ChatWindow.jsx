@@ -71,11 +71,11 @@ export default function ChatWindow() {
 
   return (
     <>
-      <div className="d-flex flex-column h-100 px-1 py-2 ">
+      <div className="d-flex flex-column h-100  ">
         <ChatHeader isTyping={isTyping} />
         
         {/* Scrollable message list */}
-        <div className="flex-grow-1 overflow-auto p-1 mt-1 d-flex flex-column chat-scrollbar">
+        <div className="flex-grow-1 overflow-auto d-flex flex-column chat-scrollbar chat-window">
          {(() => {
             let botCount = 0;
             return messages.map((msg, idx) => {
